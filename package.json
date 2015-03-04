@@ -1,0 +1,19 @@
+{
+  "name": "mongo-views",
+  "version": "0.0.1",
+  "description": "Support Views in MongoDB shell",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/justinjmoses/mongo-views.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/justinjmoses/mongo-views/issues"
+  },
+  "homepage": "https://github.com/justinjmoses/mongo-views"
+}
