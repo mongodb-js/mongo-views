@@ -54,6 +54,57 @@
         return { ok: 1 };
     };
 
+    //  Return true iff object has any properties with the given value
+    function hasPropertiesWithValue(object, value) {
+        for (prop in object) {
+           if (object[prop] == value) return true;
+        }
+        return false;
+    }
+
+    //  Merge projections of first, followed by a projection of second
+    function mergeProjections(first, second) {
+        var projection = {}
+        if (hasPropertiesWithValue(first, 1)) {
+            if (hasPropertiesWithValue(second, 1)) {
+                //  Only include fields included in both first and second
+                for (field in first) {
+                    if (second[field]) {
+                        projection[field] = 1;
+                    }
+                }
+            }
+            else if (hasPropertiesWithValue(second, 0)) {
+                //  Include properties from first that are not excluded in second
+                for (field in first) {
+                    if (!(second[field] == 0)) {
+                        projection[field] = 1;
+                    }
+                }
+            }
+        }
+        else if (hasPropertiesWithValue(first, 0)) {
+            if (hasPropertiesWithValue(second, 0)) {
+                // Exclude properties that are excluded in either first or second
+                for (field in first) {
+                    projection[field] = 0;
+                }
+                for (field in second) {
+                    projection[field] = 0;
+                }
+            }
+            else if (hasPropertiesWithValue(second, 1)) {
+                // Include properties from second that are not excluded in first
+                for (field in second) {
+                    if (!(first[field] == 0)) {
+                        projection[field] = 1;
+                    }
+                }
+            }
+        }
+        return projection;
+    }
+
     // handle view.find() by
     DBView.prototype.find = function(){
 
