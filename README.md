@@ -1,5 +1,20 @@
 # mongo-views
-MongoDB skunkworks project to enable queryable Views within the shell
+
+This is a MongoDB skunkworks project to enable queryable views within the shell. Views are like virtual collections, that can be queried as regular collections. They are comprised of queries themselves, and support db joins.
+
+Why might you want this? Well lets say you want to save a query for regular reuse. Say you want all managers from an `employee` collection. Then you could create a view via:
+
+```javascript
+db.employees.createView('managers', { manager: true });
+```
+
+and query/sort/limit it as though it was a collection via
+
+```
+db._managers.find({ dateJoined: { $gt: ISODate("2012-12-19T06:01:17.171Z") } }).sort({ name: 1 }).pretty();
+```
+
+> underscore is required in order to allow immediate View lookup. Workaround involves modifying shell code to be view aware.
 
 Installation
 ====
@@ -9,7 +24,7 @@ Symlink `index.js` to `~/.mongorc.js` or `load()` it within `.mongorc.js`
 Supports
 =======
 
-Selections (saved queries)
+Saved queries (selects)
 -------------
 
 * Creation of View
@@ -22,24 +37,15 @@ db.[collection].createView(view:String, query:Object):DBView
 db._[viewName].find(query:Object):DBQuery
 ```
 
-> underscore is required in order to allow immediate View lookup. Workaround involves modifying shell code to be View aware.
-
 Example
 ----
-```javascript
-db.employees.createView('managers', { manager: true });
-db._managers.find({ joined: { $gt: ISODate("2012-12-19T06:01:17.171Z") } }).sort({ name: 1 }).pretty();
-```
 
 Todo
 ----
-* Select
+1. Select
    * support fields in base `View`
 
-* Persistence
+1. Persistence
 
-* Join
-    *
+1. Inner Joins
 
-* Syntactic Sugar
-   * `show views` (via `utils.js`)
