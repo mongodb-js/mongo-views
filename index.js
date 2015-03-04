@@ -5,10 +5,9 @@
 
     print('mongo-views is initiating!');
 
-    var views, DBView;
+    var DBView;
+    var views_collection_name = '__views';
 
-    // setup views helper instance
-    views = { };
 
     // track original show functionality
     var shellHelperShow = internal.shellHelper.show;
@@ -17,7 +16,10 @@
     internal.shellHelper.show = function (what) {
         // to support views'
         if (what === 'views') {
-            Object.keys(views[db.getName()] || {}).forEach(function (x) { print(x); });
+            var cursor = db.getCollection(views_collection_name).find();
+            while (cursor.hasNext()) {
+                print(cursor.next().name);
+            }
             return '';
         } else {
             return shellHelperShow.apply(this, [].slice.call(arguments));
@@ -34,6 +36,17 @@
         };
     }
 
+    // load any existing views
+    if (db.getCollection(views_collection_name).exists()) {
+        var cursor = db.getCollection(views_collection_name).find();
+        while (cursor.hasNext()) {
+            var doc = cursor.next();
+            var query = JSON.parse(doc.query);
+            var view = new DBView(db.getCollection(doc.collection), doc.name, query);
+            db['_' + doc.name] = view;
+        }
+    }
+
     // support for createView function
     internal.DBCollection.prototype.createView = function(name, query) {
 
@@ -43,11 +56,11 @@
 
         var view = new DBView(this, name, query);
 
-        views[db.getName()] = views[db.getName()] || {};
-
-        views[db.getName()][name] = view;
-
         db['_' + name] = view;
+
+        db.getCollection(views_collection_name).insert(
+            {collection: this.getName(), name: name, query: JSON.stringify(query)}
+        );
 
         return { ok: 1 };
     };
