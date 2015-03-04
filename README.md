@@ -20,8 +20,8 @@ view.find(query)
 Example
 ----
 ```javascript
-var view = db.employees.createView('management', { manager: true });
-view.find({ joined: { $gt: ISODate("2012-12-19T06:01:17.171Z") } }).sort({ name: 1 }).pretty();
+db.employees.createView('managers', { manager: true });
+dbv.managers.find({ joined: { $gt: ISODate("2012-12-19T06:01:17.171Z") } }).sort({ name: 1 }).pretty();
 ```
             
 Todo
@@ -35,7 +35,4 @@ Todo
     *
 
 * Syntactic Sugar
-   * `dbv.[view].find(...)` 
-      * Create dbv instance on startup
-      * on `DBCollection.prototype.createView`, add `dbv[name] = `
    * `show views` (via `utils.js`)
