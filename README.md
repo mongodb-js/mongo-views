@@ -1,6 +1,11 @@
 # mongo-views
 MongoDB skunkworks project to enable queryable Views within the shell
 
+Installation
+====
+
+Symlink `index.js` to `~/.mongorc.js` or `load()` it within `.mongorc.js`
+
 Supports
 =======
 
