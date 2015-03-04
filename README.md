@@ -9,12 +9,12 @@ Selections (saved queries)
 
 * Creation of View
 ```javascript
-var view = db.[collection].createView(name, query)
+db.[collection].createView(view:String, query:Object):DBView
 ```
 
 * Querying of View (Query parameter only)
 ```javascript
-view.find(query)
+dbv.[viewName].find(query:Object):DBQuery
 ```
 
 Example
