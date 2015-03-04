@@ -38,10 +38,8 @@
     internal.DBCollection.prototype.createView = function(name, query) {
 
         // prevent dupes
-        // Note: commented out as underscore workaround prevents dupes --JJM
-
-        // var collections = db.getCollectionNames();
-        // assert(collections.indexOf(name), 'view cannot have the name of an existing collection');
+        var collections = db.getCollectionNames();
+        assert(collections.indexOf(name), 'view cannot have the name of an existing collection');
 
         var view = new DBView(this, name, query);
 
