@@ -1,55 +1,74 @@
-print('mongo-views is initiating!');
+// note: db is a reference, that we cannot pass through
 
-// setup views helper instance
-if (typeof dbv === 'undefined') {
-    dbv = { };
-}
+(function (internal) {
+    'use strict';
 
-// track original show functionality
-var shellHelperShow = shellHelper.show;
+    print('mongo-views is initiating!');
 
-// now overload show
-shellHelper.show = function (what) {
-    // to support views'
-    if (what === 'views') {
-        Object.keys(dbv).forEach(function (x) { print(x); });
-        return '';
-    } else {
-        return shellHelperShow.apply(this, [].slice.call(arguments));
-    }
-};
+    var views, DBView;
 
-if (typeof DBView === 'undefined') {
+    // setup views helper instance
+    views = { };
 
-    // create global DBView constructor
-    DBView = function(coll, name, query) {
-        this._coll = coll;
-        this._name = name;
-        this._query = query;
+    // track original show functionality
+    var shellHelperShow = internal.shellHelper.show;
+
+    // now overload show
+    internal.shellHelper.show = function (what) {
+        // to support views'
+        if (what === 'views') {
+            Object.keys(views[db.getName()] || {}).forEach(function (x) { print(x); });
+            return '';
+        } else {
+            return shellHelperShow.apply(this, [].slice.call(arguments));
+        }
     };
-}
 
-// support for createView function
-DBCollection.prototype.createView = function(name, query) {
-    dbv[name] = new DBView(this, name, query);
+    if (typeof DBView === 'undefined') {
 
-    return { ok: 1 };
-};
+        // create global DBView constructor
+        DBView = function(coll, name, query) {
+            this._coll = coll;
+            this._name = name;
+            this._query = query;
+        };
+    }
 
-// handle view.find() by
-DBView.prototype.find = function(){
+    // support for createView function
+    internal.DBCollection.prototype.createView = function(name, query) {
 
-    // transforming arguments
-    var args = [].slice.call(arguments);
+        // prevent dupes
+        // Note: commented out as underscore workaround prevents dupes --JJM
 
-    // get the first parameter, the find's query
-    var findQuery = args.splice(0, 1)[0] || {};
+        // var collections = db.getCollectionNames();
+        // assert(collections.indexOf(name), 'view cannot have the name of an existing collection');
 
-    // create a new $and query combining the View query with the find's query
-    var finalQuery = { $and: [this._query, findQuery] };
+        var view = new DBView(this, name, query);
 
-    // return the find prototype with the merged query
-    return DBCollection.prototype.find.call(this._coll, finalQuery);
-};
+        views[db.getName()] = views[db.getName()] || {};
 
+        views[db.getName()][name] = view;
+
+        db['_' + name] = view;
+
+        return { ok: 1 };
+    };
+
+    // handle view.find() by
+    DBView.prototype.find = function(){
+
+        // transforming arguments
+        var args = [].slice.call(arguments);
+
+        // get the first parameter, the find's query
+        var findQuery = args.splice(0, 1)[0] || {};
+
+        // create a new $and query combining the View query with the find's query
+        var finalQuery = { $and: [this._query, findQuery] };
+
+        // return the find prototype with the merged query
+        return DBCollection.prototype.find.call(this._coll, finalQuery);
+    };
+
+})({ DBCollection: DBCollection, shellHelper: shellHelper });
 

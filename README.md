@@ -19,20 +19,22 @@ db.[collection].createView(view:String, query:Object):DBView
 
 * Querying of View (Query parameter only)
 ```javascript
-dbv.[viewName].find(query:Object):DBQuery
+db._[viewName].find(query:Object):DBQuery
 ```
+
+> underscore is required in order to allow immediate View lookup. Workaround involves modifying shell code to be View aware.
 
 Example
 ----
 ```javascript
 db.employees.createView('managers', { manager: true });
-dbv.managers.find({ joined: { $gt: ISODate("2012-12-19T06:01:17.171Z") } }).sort({ name: 1 }).pretty();
+db._managers.find({ joined: { $gt: ISODate("2012-12-19T06:01:17.171Z") } }).sort({ name: 1 }).pretty();
 ```
-            
+
 Todo
 ----
 * Select
-   * support fields in base `View`  
+   * support fields in base `View`
 
 * Persistence
 
