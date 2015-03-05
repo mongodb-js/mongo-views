@@ -56,6 +56,13 @@ __Drop__
 db._[view].drop()
 ```
 
+Guidelines
+========
+
+* View names are unique
+
+* Views based on dropped collections or views will be removed automatically
+
 Supports
 =======
 
