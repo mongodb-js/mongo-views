@@ -83,7 +83,12 @@
                 var target = getTargetByName(doc.target);
 
                 if (target) {
-                    instantiateView(target, doc.name, JSON.parse(doc.query), JSON.parse(doc.projection));
+
+                    try {
+                        instantiateView(target, doc.name, JSON.parse(doc.query), JSON.parse(doc.projection));
+                    } catch (err) {
+                        print('Error while loading view: ' + doc.name);
+                    }
 
                 // otherwise, if target cannot be found (likely dropped)
                 } else {
