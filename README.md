@@ -90,3 +90,10 @@ Todo
 1. Nice to Have
     * Create views from views
 
+Run Tests
+----
+
+First time grab deps: `npm install`
+
+Then run `npm test`
+
