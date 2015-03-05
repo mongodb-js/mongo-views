@@ -2,7 +2,7 @@
   "name": "mongo-views",
   "version": "0.0.1",
   "description": "Support Views in MongoDB shell",
-  "main": "index.js",
+  "main": "lib/views.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

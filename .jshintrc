@@ -1,0 +1,29 @@
+{
+    "browser": true,
+
+    "node": true,
+
+    "indent": 4,
+
+    "sub": true,
+
+    "newcap": false,
+
+    "expr": true,
+
+    "quotmark": "single",
+
+    "unused": true,
+
+    "undef": true,
+
+    "strict": true,
+
+    "debug": true,
+
+    "newcap": true,
+
+    "supernew": true,
+
+    "predef": [ "load", "__modules", "describe", "it", "beforeEach", "afterEach", "before", "after", "xdescribe", "xit" ]
+}
