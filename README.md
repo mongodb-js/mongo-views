@@ -23,24 +23,34 @@ Installation
 
 Symlink `index.js` to `~/.mongorc.js` or `load()` it within `.mongorc.js`
 
+Basic Usage
+=======
+
+__Create__
+```javascript
+db.[collection].createView(view:String, query:Object):DBView
+```
+
+__Query__
+```javascript
+db._[view].find(query:Object):DBQuery
+```
+
+__Drop__
+```javascript
+db._[view].drop()
+```
+
 Supports
 =======
 
 Saved queries (selects)
 -------------
 
-* Creation of View
-```javascript
-db.[collection].createView(view:String, query:Object):DBView
-```
-
 * Querying of View (Query parameter only)
-```javascript
-db._[viewName].find(query:Object):DBQuery
-```
 
-* Persistence across Sessions
-Views are loaded when shell is starte
+* Persistence across Sessions<br />
+Views are loaded when shell is started
 
 
 Todo

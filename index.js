@@ -5,9 +5,9 @@
 
     print('mongo-views is initiating!');
 
-    var DBView;
     var VIEWS_COLLECTION_NAME = '__views';
 
+    var DBView;
 
     // track original show functionality
     var shellHelperShow = internal.shellHelper.show;
@@ -36,15 +36,26 @@
         };
     }
 
-    // load any existing views
+    function addViewToDb(db, name, view) {
+        db['_' + name] = view;
+        return view;
+    }
+
+    // load any existing views on session start
+    // TODO - should occur when db is switched/loaded
     if (db.getCollection(VIEWS_COLLECTION_NAME).exists()) {
+
         var cursor = db.getCollection(VIEWS_COLLECTION_NAME).find();
         while (cursor.hasNext()) {
             var doc = cursor.next();
             var query = JSON.parse(doc.query);
             var view = new DBView(db.getCollection(doc.collection), doc.name, query);
-            db['_' + doc.name] = view;
+            addViewToDb(db, doc.name, view);
         }
+
+    } else {
+        // ensure unique index on name
+        db.getCollection(VIEWS_COLLECTION_NAME).createIndex({ name: 1 }, { unique: true });
     }
 
     // support for createView function
@@ -54,13 +65,19 @@
 
         var view = new DBView(this, name, query);
 
-        db['_' + name] = view;
+        // track in session
+        addViewToDb(db, name, view);
 
-        db.getCollection(VIEWS_COLLECTION_NAME).insert(
-            {collection: this.getName(), name: name, query: JSON.stringify(query)}
+        // persist
+        var result = db.getCollection(VIEWS_COLLECTION_NAME).insert(
+            {
+                collection: this.getName(),
+                name: name,
+                query: JSON.stringify(query)
+            }
         );
 
-        return { ok: 1 };
+        return result;
     };
 
     // handle view.find() by
@@ -77,6 +94,14 @@
 
         // return the find prototype with the merged query
         return DBCollection.prototype.find.call(this._coll, finalQuery);
+    };
+
+    // handle removal of views
+    DBView.prototype.drop = function () {
+        // delete local reference
+        delete db['_' + this._name];
+
+        return db.getCollection(VIEWS_COLLECTION_NAME).remove({ name: this._name });
     };
 
     // TODO refactor
