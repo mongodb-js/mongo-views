@@ -99,13 +99,15 @@
 
     })();
 
+    // Any instantiated View will always exist by definition
     DBView.prototype.exists = function () {
-        return db.getCollection(VIEWS_COLLECTION_NAME).find({ name: this.getName() }).itcount() > 0;
+        return !!db.getCollection(VIEWS_COLLECTION_NAME).findOne({ name: this.getName() });
     };
 
-    // DBView.prototype.getDb = function () {
-
-    // };
+    // recurse up target tree to determine database
+    DBView.prototype.getDB = function () {
+        return this._target.getDB();
+    };
 
     // support for createView function
     internal.DBCollection.prototype.createView = DBView.prototype.createView = function(name, query) {
@@ -129,7 +131,7 @@
     };
 
     DBView.prototype.toString = DBView.prototype.tojson = DBView.prototype.shellPrint = function () {
-        return this._name;
+        return this.getDB().toString() + '.' + this._name + ' (view)';
     };
 
     // handle view.find() by
