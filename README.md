@@ -28,7 +28,12 @@ Basic Usage
 
 __Create__
 ```javascript
-db.[collection].createView(view:String, query:Object):DBView
+db.[collection].createView(view:String, query:Object)
+```
+
+__See all views in DB__
+```javascript
+show views
 ```
 
 __Query__
