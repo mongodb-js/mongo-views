@@ -13,7 +13,7 @@ db.employees.createView('managers', { manager: true });
 and query/sort/limit it as though it was a collection via
 
 ```
-db._managers.find({ name: /Jane/ }).sort({ name: 1 }).pretty();
+db._managers.find({ name: 'Jane' }).sort({ name: 1 }).pretty();
 ```
 
 you can then create nested views via
@@ -38,7 +38,7 @@ Basic Usage
 
 __Create__
 ```javascript
-db.[collection].createView(view:String, query:Object)
+db.[collection].createView(view:String, criteria:Object, projection:Object)
 
 //or
 
@@ -60,6 +60,25 @@ __Drop__
 db._[view].drop()
 ```
 
+Querying
+========
+
+* Queries are composed using `$and` operators. So all query parameters in the view, along with any find criteria in the
+
+ie. in the above example,
+
+```javascript
+db.employees.createView('managers', { manager: true });
+db._managers.find({ name: /Jane/ });
+```
+
+Will result in
+
+```javascript
+db.employees.find({ manager: true, name: /Jane/ });
+```
+
+
 Guidelines
 ========
 
@@ -67,32 +86,28 @@ Guidelines
 
 * Views based on dropped collections or views will be removed automatically
 
+
 Supports
 =======
 
 Saved queries (selects)
 -------------
 
-* Querying of View (query parameter only)
+* Querying of View
 
 * Nested views (create a view from view)
 
-* Persistence across Sessions<br />
-Views are loaded when shell is started
+* Persistence across Sessions
 
 
 Todo
 ----
-1. Select
-   * support fields in base `View`
 
 1. Persistence
     * support for switching dbs
 
 1. Inner Joins
 
-1. Nice to Have
-    * Create views from views
 
 Run Tests
 ----
