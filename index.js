@@ -29,14 +29,38 @@
     if (typeof DBView === 'undefined') {
 
         // create global DBView constructor
-        DBView = function(coll, name, query) {
-            this._coll = coll;
+        DBView = function(target, name, query) {
+            this._target = target;
             this._name = name;
             this._query = query;
         };
     }
 
-    function addViewToDb(db, name, view) {
+    function getViewFromStore (name) {
+        return db.getCollection(VIEWS_COLLECTION_NAME).findOne({ name: name });
+    }
+
+    var getViewByName = DB.prototype.getView = function(name) {
+        var doc = getViewFromStore(name);
+        if (doc) {
+            return new DBView(getTargetByName(doc.target), doc.name, JSON.parse(doc.query));
+        }
+    };
+
+    // return a target (Collection or View) by name
+    function getTargetByName(name) {
+        var collection = db.getCollection(name);
+        // if a collection
+        if (collection.exists()) {
+            return db.getCollection(name);
+        // or if a view exists
+        } else if (getViewFromStore(name)) {
+            return getViewByName(name);
+        }
+    }
+
+    function instantiateView(target, name, query) {
+        var view = new DBView(target, name, query);
         db['_' + name] = view;
         return view;
     }
@@ -48,29 +72,22 @@
 
             var view;
 
-            // grab the views in creation order
-            var cursor = db.getCollection(VIEWS_COLLECTION_NAME).find().sort({_id: 1});
+            // grab the views
+            var cursor = db.getCollection(VIEWS_COLLECTION_NAME).find();
+
             while (cursor.hasNext()) {
+
                 var doc = cursor.next();
-                var query = JSON.parse(doc.query);
 
-                // try loading as collection
-                var target = db.getCollection(doc.collection);
+                var target = getTargetByName(doc.target);
 
-                // if not exists
-                if (!target.exists()) {
-                    // check as a view (should be loaded in memory already)
-                    target = db['_' + doc.collection];
-                }
-
-                // when target exists
                 if (target) {
-                    view = new DBView(target, doc.name, query);
-                    addViewToDb(db, doc.name, view);
 
-                // otherwise, target was dropped
+                    instantiateView(target, doc.name, JSON.parse(doc.query));
+
+                // otherwise, if target cannot be found (likely dropped)
                 } else {
-                    // so remove this view
+                    // remove this view
                     db.getCollection(VIEWS_COLLECTION_NAME).remove(doc);
                 }
             }
@@ -86,29 +103,32 @@
         return db.getCollection(VIEWS_COLLECTION_NAME).find({ name: this.getName() }).itcount() > 0;
     };
 
+    // DBView.prototype.getDb = function () {
+
+    // };
+
     // support for createView function
     internal.DBCollection.prototype.createView = DBView.prototype.createView = function(name, query) {
 
         // Note: duplication prevention redundant as underscore workaround prevents dupes --JJM
 
-        var view = new DBView(this, name, query);
-
-        // track in session
-        addViewToDb(db, name, view);
+        instantiateView(this, name, query);
 
         // persist
-        var result = db.getCollection(VIEWS_COLLECTION_NAME).insert(
+        return db.getCollection(VIEWS_COLLECTION_NAME).insert(
             {
-                collection: this.getName(),
                 name: name,
+                target: this.getName(),
                 query: JSON.stringify(query)
             }
         );
-
-        return result;
     };
 
     DBView.prototype.getName = function () {
+        return this._name;
+    };
+
+    DBView.prototype.toString = DBView.prototype.tojson = DBView.prototype.shellPrint = function () {
         return this._name;
     };
 
@@ -124,8 +144,8 @@
         // create a new $and query combining the View query with the find's query
         var finalQuery = { $and: [this._query, findQuery] };
 
-        // return the find prototype with the merged query
-        return this._coll.find(finalQuery);
+        // return the find with the merged query
+        return this._target.find(finalQuery);
     };
 
     // handle removal of views
@@ -189,5 +209,5 @@
         return projection;
     }
 
-})({ DBCollection: DBCollection, shellHelper: shellHelper });
+})({ DBCollection: DBCollection, shellHelper: shellHelper, DB: DB });
 
