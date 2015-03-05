@@ -27,7 +27,9 @@ Whenever you open the shell and go into that database, your views will be there 
 Installation
 ====
 
-Symlink `index.js` to `~/.mongorc.js` or `load()` it within `.mongorc.js`
+* In POSIX environments, run `make`
+
+* In WinX environments, please add `mongorc.js` to your MongoDB installation folder (if it doesn't exist) and copy the contents of `index.js` into it, amending setting the `__CURDIR` global to the full path of this mongo-views folder.
 
 Basic Usage
 =======
