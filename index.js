@@ -1,4 +1,4 @@
-// note: db is a reference, that we cannot pass through
+// note: db is a reference, that we cannot pass through, so use it as a global
 
 (function (internal) {
     'use strict';
@@ -6,7 +6,7 @@
     print('mongo-views is initiating!');
 
     var DBView;
-    var views_collection_name = '__views';
+    var VIEWS_COLLECTION_NAME = '__views';
 
 
     // track original show functionality
@@ -16,7 +16,7 @@
     internal.shellHelper.show = function (what) {
         // to support views'
         if (what === 'views') {
-            var cursor = db.getCollection(views_collection_name).find();
+            var cursor = db.getCollection(VIEWS_COLLECTION_NAME).find();
             while (cursor.hasNext()) {
                 print(cursor.next().name);
             }
@@ -37,8 +37,8 @@
     }
 
     // load any existing views
-    if (db.getCollection(views_collection_name).exists()) {
-        var cursor = db.getCollection(views_collection_name).find();
+    if (db.getCollection(VIEWS_COLLECTION_NAME).exists()) {
+        var cursor = db.getCollection(VIEWS_COLLECTION_NAME).find();
         while (cursor.hasNext()) {
             var doc = cursor.next();
             var query = JSON.parse(doc.query);
@@ -56,13 +56,28 @@
 
         db['_' + name] = view;
 
-        db.getCollection(views_collection_name).insert(
+        db.getCollection(VIEWS_COLLECTION_NAME).insert(
             {collection: this.getName(), name: name, query: JSON.stringify(query)}
         );
 
         return { ok: 1 };
     };
 
+    // handle view.find() by
+    DBView.prototype.find = function(){
+
+        // transforming arguments
+        var args = [].slice.call(arguments);
+
+        // get the first parameter, the find's query
+        var findQuery = args.splice(0, 1)[0] || {};
+
+        // create a new $and query combining the View query with the find's query
+        var finalQuery = { $and: [this._query, findQuery] };
+
+        // return the find prototype with the merged query
+        return DBCollection.prototype.find.call(this._coll, finalQuery);
+    };
 
     // TODO refactor
 
@@ -116,22 +131,6 @@
         }
         return projection;
     }
-
-    // handle view.find() by
-    DBView.prototype.find = function(){
-
-        // transforming arguments
-        var args = [].slice.call(arguments);
-
-        // get the first parameter, the find's query
-        var findQuery = args.splice(0, 1)[0] || {};
-
-        // create a new $and query combining the View query with the find's query
-        var finalQuery = { $and: [this._query, findQuery] };
-
-        // return the find prototype with the merged query
-        return DBCollection.prototype.find.call(this._coll, finalQuery);
-    };
 
 })({ DBCollection: DBCollection, shellHelper: shellHelper });
 
