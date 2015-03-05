@@ -2,24 +2,26 @@
 
 [![Build Status](https://travis-ci.org/justinjmoses/mongo-views.svg?branch=master)](https://travis-ci.org/justinjmoses/mongo-views)
 
+Supports MongoDB 2.2 <= 3.0
+
 This is a MongoDB skunkworks project to enable queryable views within the shell. Views are like **virtual collections**, that can be queried as regular collections. They are comprised of queries themselves, and support db joins.
 
 Why might you want this? Well lets say you want to save a query for regular reuse. Say you want all managers from an `employee` collection. Then you could create a view via:
 
 ```javascript
-db.employees.createView('managers', { manager: true });
+db.employees.createView("managers", { manager: true });
 ```
 
 and query/sort/limit it as though it was a collection via
 
 ```
-db._managers.find({ name: 'Jane' }).sort({ name: 1 }).pretty();
+db._managers.find({ name: "Jane" }).sort({ name: 1 }).pretty();
 ```
 
 you can then create nested views via
 
 ```javascript
-db._managers.createView('female_managers', { gender: 'F' });
+db._managers.createView("female_managers", { gender: "F" });
 ```
 
 Whenever you open the shell and go into that database, your views will be there for that database. They are virtual, and only save the state of the query used to create them. This means that each time a query is performed on a view, the latest collection data is fetched.
@@ -38,7 +40,7 @@ Basic Usage
 
 __Create__
 ```javascript
-db.[collection].createView(view:String, criteria:Object, projection:Object)
+db.[collection].createView(view:String, criteria:Object, projection:Object, join:Array)
 
 //or
 
@@ -60,22 +62,41 @@ __Drop__
 db._[view].drop()
 ```
 
-Querying
+Criteria
 ========
 
-* Queries are composed using `$and` operators. So all query parameters in the view, along with any find criteria in the
+* Queries are composed using `$and` operators. So all query parameters in the view, along with any find criteria in the `find` call, will be condensed into a single query.
 
 ie. in the above example,
 
 ```javascript
-db.employees.createView('managers', { manager: true });
+db.employees.createView("managers", { manager: true });
 db._managers.find({ name: /Jane/ });
 ```
 
-Will result in
+Will yield
 
 ```javascript
-db.employees.find({ manager: true, name: /Jane/ });
+db.employees.find({ $and: [{ manager: true }, { name: /Jane/ }] });
+```
+
+Projection
+==========
+
+* MongoDB allows for
+
+Join
+=====
+
+WIP.
+
+```javascript
+db.[collection].createView("name", {}, {}, [{ foreignKey: "userId", targets: [ "users": "id" ] }])
+```
+
+Proposed change
+```javascript
+db.[collection].createView("name", { query: {}, projection: {}, { join: [zz{ foreignKey: "userId", targets: [ target: db.users, key: "id" ] }] }})
 ```
 
 
