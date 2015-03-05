@@ -22,6 +22,8 @@ function require(relPath) {
 
     load('./lib/init.js');
 
+    print('mongo-views is initiating!');
+
     __modules['views']['init.js'](internals);
 
 })({ DBCollection: DBCollection, shellHelper: shellHelper, DB: DB });

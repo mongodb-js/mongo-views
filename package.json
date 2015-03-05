@@ -10,7 +10,7 @@
     "type": "git",
     "url": "https://github.com/justinjmoses/mongo-views.git"
   },
-  "author": "",
+  "contributors": ["justin j. moses", "geert bosch", "charlie swanson"],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/justinjmoses/mongo-views/issues"
