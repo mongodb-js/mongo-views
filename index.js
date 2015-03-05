@@ -29,10 +29,11 @@
     if (typeof DBView === 'undefined') {
 
         // create global DBView constructor
-        DBView = function(target, name, query) {
+        DBView = function(target, name, query, projection) {
             this._target = target;
             this._name = name;
             this._query = query;
+            this._projection = projection;
         };
     }
 
@@ -59,8 +60,8 @@
         }
     }
 
-    function instantiateView(target, name, query) {
-        var view = new DBView(target, name, query);
+    function instantiateView(target, name, query, projection) {
+        var view = new DBView(target, name, query, projection);
         db['_' + name] = view;
         return view;
     }
@@ -82,8 +83,7 @@
                 var target = getTargetByName(doc.target);
 
                 if (target) {
-
-                    instantiateView(target, doc.name, JSON.parse(doc.query));
+                    instantiateView(target, doc.name, JSON.parse(doc.query), JSON.parse(doc.projection));
 
                 // otherwise, if target cannot be found (likely dropped)
                 } else {
@@ -108,18 +108,19 @@
     // };
 
     // support for createView function
-    internal.DBCollection.prototype.createView = DBView.prototype.createView = function(name, query) {
+    internal.DBCollection.prototype.createView = DBView.prototype.createView = function(name, query, projection) {
 
         // Note: duplication prevention redundant as underscore workaround prevents dupes --JJM
 
-        instantiateView(this, name, query);
+        instantiateView(this, name, query, projection);
 
         // persist
         return db.getCollection(VIEWS_COLLECTION_NAME).insert(
             {
                 name: name,
                 target: this.getName(),
-                query: JSON.stringify(query)
+                query: JSON.stringify(query),
+                projection: JSON.stringify(projection)
             }
         );
     };
@@ -144,8 +145,14 @@
         // create a new $and query combining the View query with the find's query
         var finalQuery = { $and: [this._query, findQuery] };
 
-        // return the find with the merged query
-        return this._target.find(finalQuery);
+        // get the second parameter, the find's projection
+        var findProjection = args.splice(0, 1)[0] || {};
+
+        // create a new projection, combining the View projection with the find's projection
+        var finalProjection = mergeProjections(this._projection, findProjection);
+
+        // return the find prototype with the merged query
+        return this._target.find(finalQuery, finalProjection);
     };
 
     // handle removal of views
