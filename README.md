@@ -54,7 +54,7 @@ show views
 
 __Query__
 ```javascript
-db._[view].find(query:Object):DBQuery
+db._[view].find(criteria:Object):DBQuery
 ```
 
 __Drop__
@@ -65,7 +65,7 @@ db._[view].drop()
 Criteria
 ========
 
-* Queries are composed using `$and` operators. So all query parameters in the view, along with any find criteria in the `find` call, will be condensed into a single query.
+* Under the hood, views composed criteria using `$and` operators. So all `criteria` parameters in the view, along with any find criteria in the `find` call, will be condensed into a single `criteria` object.
 
 ie. in the above example,
 
@@ -83,7 +83,54 @@ db.employees.find({ $and: [{ manager: true }, { name: /Jane/ }] });
 Projection
 ==========
 
-* MongoDB allows for
+* MongoDB allows for projections in the `find` function. Fields can be enabled or disabled, either as whitelists or blacklists [see MongoDB docs](http://docs.mongodb.org/manual/tutorial/project-fields-from-query-results/#projection).
+
+* In order to properly combine projections, we must combine the two sets in certain ways:
+    1. For matched fields in both the view and the find projection, we bitwise AND them (meaning that unless they are both true, the field is off)
+    2. For fields enabled in the base projection, only those enabled in the find projection will remain.
+    3. For fields disabled in the base projection, all of those disabled in the find projection will be added.
+
+Egs.
+
+Case 1:
+
+```javascript
+db.employees.createView("managers", { manager: true }, { name: 1, id: 1 });
+db._managers.find({ }, { id: 0 });
+```
+
+yields
+
+```javascript
+db.employees.find({ ... }, { name: 1, id: 0 }); // id set to 0 from 1~0
+```
+
+Case 2:
+
+```javascript
+db.employees.createView("managers", { manager: true }, { name: 1, id: 1 });
+db._managers.find({ }, { name: 1 });
+```
+
+yields
+
+```javascript
+db.employees.find({ ... }, { name: 1 }); // id removed as not in find() projection
+```
+
+Case 3:
+
+```javascript
+db.employees.createView("managers", { manager: true }, { id: 0 });
+db._managers.find({ }, { email: 0 });
+```
+
+yields
+
+```javascript
+db.employees.find({ ... }, { id: 0, email: 0 }); // id removed as not in find() projection
+```
+
 
 Join
 =====
