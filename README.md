@@ -1,5 +1,7 @@
 # mongo-views
 
+[![Build Status](https://travis-ci.org/justinjmoses/mongo-views.svg?branch=master)](https://travis-ci.org/justinjmoses/mongo-views)
+
 This is a MongoDB skunkworks project to enable queryable views within the shell. Views are like **virtual collections**, that can be queried as regular collections. They are comprised of queries themselves, and support db joins.
 
 Why might you want this? Well lets say you want to save a query for regular reuse. Say you want all managers from an `employee` collection. Then you could create a view via:
