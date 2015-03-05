@@ -97,11 +97,8 @@ Case 1:
 ```javascript
 db.employees.createView("managers", { manager: true }, { name: 1, _id: 1 });
 db._managers.find({ }, { _id: 0 });
-```
 
-yields
-
-```javascript
+// yields =>
 db.employees.find({ ... }, { name: 1, _id: 0 }); // id set to 0 from 1~0
 ```
 
@@ -110,11 +107,8 @@ Case 2:
 ```javascript
 db.employees.createView("managers", { manager: true }, { name: 1, id: 1 });
 db._managers.find({ }, { name: 1 });
-```
 
-yields
-
-```javascript
+// yields =>
 db.employees.find({ ... }, { name: 1 }); // id removed as not in find() projection
 ```
 
@@ -123,11 +117,8 @@ Case 3:
 ```javascript
 db.employees.createView("managers", { manager: true }, { id: 0 });
 db._managers.find({ }, { email: 0 });
-```
 
-yields
-
-```javascript
+// yields =>
 db.employees.find({ ... }, { id: 0, email: 0 }); // id removed as not in find() projection
 ```
 
