@@ -37,11 +37,7 @@
     // support for createView function
     internal.DBCollection.prototype.createView = function(name, query) {
 
-        // prevent dupes
-        // Note: commented out as underscore workaround prevents dupes --JJM
-
-        // var collections = db.getCollectionNames();
-        // assert(collections.indexOf(name), 'view cannot have the name of an existing collection');
+        // Note: duplication prevention redundant as underscore workaround prevents dupes --JJM
 
         var view = new DBView(this, name, query);
 
@@ -54,9 +50,12 @@
         return { ok: 1 };
     };
 
+
+    // TODO refactor
+
     //  Return true iff object has any properties with the given value
     function hasPropertiesWithValue(object, value) {
-        for (prop in object) {
+        for (var prop in object) {
            if (object[prop] == value) return true;
         }
         return false;
@@ -64,7 +63,7 @@
 
     //  Merge projections of first, followed by a projection of second
     function mergeProjections(first, second) {
-        var projection = {}
+        var projection = {}, field;
         if (hasPropertiesWithValue(first, 1)) {
             if (hasPropertiesWithValue(second, 1)) {
                 //  Only include fields included in both first and second
@@ -77,7 +76,7 @@
             else if (hasPropertiesWithValue(second, 0)) {
                 //  Include properties from first that are not excluded in second
                 for (field in first) {
-                    if (!(second[field] == 0)) {
+                    if (second[field] !== 0) {
                         projection[field] = 1;
                     }
                 }
@@ -96,7 +95,7 @@
             else if (hasPropertiesWithValue(second, 1)) {
                 // Include properties from second that are not excluded in first
                 for (field in second) {
-                    if (!(first[field] == 0)) {
+                    if (first[field] !== 0) {
                         projection[field] = 1;
                     }
                 }
