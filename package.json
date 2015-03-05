@@ -21,6 +21,9 @@
   },
   "homepage": "https://github.com/justinjmoses/mongo-views",
   "devDependencies": {
-    "mocha": "^2.1.0"
+    "chai": "^2.1.1",
+    "mocha": "^2.1.0",
+    "sinon": "^1.13.0",
+    "sinon-chai": "^2.7.0"
   }
 }
