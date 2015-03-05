@@ -178,7 +178,7 @@
                     }
                 }
             }
-            else if (hasPropertiesWithValue(second, 0)) {
+            else {
                 //  Include properties from first that are not excluded in second
                 for (field in first) {
                     if (second[field] !== 0) {
@@ -187,22 +187,22 @@
                 }
             }
         }
-        else if (hasPropertiesWithValue(first, 0)) {
-            if (hasPropertiesWithValue(second, 0)) {
+        else {
+            if (hasPropertiesWithValue(second, 1)) {
+                // Include properties from second that are not excluded in first
+                for (field in second) {
+                    if (first[field] !== 0) {
+                        projection[field] = 1;
+                    }
+                }
+            }
+            else {
                 // Exclude properties that are excluded in either first or second
                 for (field in first) {
                     projection[field] = 0;
                 }
                 for (field in second) {
                     projection[field] = 0;
-                }
-            }
-            else if (hasPropertiesWithValue(second, 1)) {
-                // Include properties from second that are not excluded in first
-                for (field in second) {
-                    if (first[field] !== 0) {
-                        projection[field] = 1;
-                    }
                 }
             }
         }
