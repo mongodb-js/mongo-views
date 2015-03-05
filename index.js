@@ -22,7 +22,7 @@
             }
             return '';
         } else {
-            return shellHelperShow.apply(this, [].slice.call(arguments));
+            return shellHelperShow.apply(null, [].slice.call(arguments));
         }
     };
 
@@ -81,6 +81,10 @@
         }
 
     })();
+
+    DBView.prototype.exists = function () {
+        return db.getCollection(VIEWS_COLLECTION_NAME).find({ name: this.getName() }).itcount() > 0;
+    };
 
     // support for createView function
     internal.DBCollection.prototype.createView = DBView.prototype.createView = function(name, query) {
