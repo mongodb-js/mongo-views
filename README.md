@@ -11,7 +11,13 @@ db.employees.createView('managers', { manager: true });
 and query/sort/limit it as though it was a collection via
 
 ```
-db._managers.find({ dateJoined: { $gt: ISODate("2012-12-19T06:01:17.171Z") } }).sort({ name: 1 }).pretty();
+db._managers.find({ name: /Jane/ }).sort({ name: 1 }).pretty();
+```
+
+you can then create nested views via
+
+```javascript
+db._managers.createView('female_managers', { gender: 'F' });
 ```
 
 Whenever you open the shell and go into that database, your views will be there for that database. They are virtual, and only save the state of the query used to create them. This means that each time a query is performed on a view, the latest collection data is fetched.
