@@ -95,14 +95,14 @@ Egs.
 Case 1:
 
 ```javascript
-db.employees.createView("managers", { manager: true }, { name: 1, id: 1 });
-db._managers.find({ }, { id: 0 });
+db.employees.createView("managers", { manager: true }, { name: 1, _id: 1 });
+db._managers.find({ }, { _id: 0 });
 ```
 
 yields
 
 ```javascript
-db.employees.find({ ... }, { name: 1, id: 0 }); // id set to 0 from 1~0
+db.employees.find({ ... }, { name: 1, _id: 0 }); // id set to 0 from 1~0
 ```
 
 Case 2:
