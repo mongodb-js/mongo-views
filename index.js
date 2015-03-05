@@ -41,25 +41,49 @@
         return view;
     }
 
-    // load any existing views on session start
-    // TODO - should occur when db is switched/loaded
-    if (db.getCollection(VIEWS_COLLECTION_NAME).exists()) {
+    (function () {
+        // load any existing views on session start
+        // TODO - should occur when db is switched/loaded
+        if (db.getCollection(VIEWS_COLLECTION_NAME).exists()) {
 
-        var cursor = db.getCollection(VIEWS_COLLECTION_NAME).find();
-        while (cursor.hasNext()) {
-            var doc = cursor.next();
-            var query = JSON.parse(doc.query);
-            var view = new DBView(db.getCollection(doc.collection), doc.name, query);
-            addViewToDb(db, doc.name, view);
+            var view;
+
+            // grab the views in creation order
+            var cursor = db.getCollection(VIEWS_COLLECTION_NAME).find().sort({_id: 1});
+            while (cursor.hasNext()) {
+                var doc = cursor.next();
+                var query = JSON.parse(doc.query);
+
+                // try loading as collection
+                var target = db.getCollection(doc.collection);
+
+                // if not exists
+                if (!target.exists()) {
+                    // check as a view (should be loaded in memory already)
+                    target = db['_' + doc.collection];
+                }
+
+                // when target exists
+                if (target) {
+                    view = new DBView(target, doc.name, query);
+                    addViewToDb(db, doc.name, view);
+
+                // otherwise, target was dropped
+                } else {
+                    // so remove this view
+                    db.getCollection(VIEWS_COLLECTION_NAME).remove(doc);
+                }
+            }
+
+        } else {
+            // ensure unique index on name
+            db.getCollection(VIEWS_COLLECTION_NAME).createIndex({ name: 1 }, { unique: true });
         }
 
-    } else {
-        // ensure unique index on name
-        db.getCollection(VIEWS_COLLECTION_NAME).createIndex({ name: 1 }, { unique: true });
-    }
+    })();
 
     // support for createView function
-    internal.DBCollection.prototype.createView = function(name, query) {
+    internal.DBCollection.prototype.createView = DBView.prototype.createView = function(name, query) {
 
         // Note: duplication prevention redundant as underscore workaround prevents dupes --JJM
 
@@ -80,6 +104,10 @@
         return result;
     };
 
+    DBView.prototype.getName = function () {
+        return this._name;
+    };
+
     // handle view.find() by
     DBView.prototype.find = function(){
 
@@ -93,7 +121,7 @@
         var finalQuery = { $and: [this._query, findQuery] };
 
         // return the find prototype with the merged query
-        return DBCollection.prototype.find.call(this._coll, finalQuery);
+        return this._coll.find(finalQuery);
     };
 
     // handle removal of views

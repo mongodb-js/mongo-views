@@ -29,6 +29,10 @@ Basic Usage
 __Create__
 ```javascript
 db.[collection].createView(view:String, query:Object)
+
+//or
+
+db._[view].createView(view:String, query:Object)
 ```
 
 __See all views in DB__
@@ -52,7 +56,9 @@ Supports
 Saved queries (selects)
 -------------
 
-* Querying of View (Query parameter only)
+* Querying of View (query parameter only)
+
+* Nested views (create a view from view)
 
 * Persistence across Sessions<br />
 Views are loaded when shell is started
