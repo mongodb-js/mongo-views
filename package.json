@@ -1,6 +1,6 @@
 {
   "name": "mongo-views",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Support Views in MongoDB shell",
   "main": "lib/views.js",
   "scripts": {
