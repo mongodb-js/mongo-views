@@ -18,7 +18,7 @@ Why might you want this? Well lets say you want to save a query for regular reus
 ```javascript
 db.employees.insert(
     [
-        {name: "John", dob: new Date(1980, 1, 2)}, 
+        {name: "John", dob: new Date(1980, 1, 2)},
         {name: "Paul", manager: true, dob: new Date(1983, 7, 10), uid: 3},
         {name: "Mary", dob: new Date(1985, 5, 12), uid: 20},
         {name: "Aimee", manager: true, dob: new Date(1945, 2, 20), uid: 50}
@@ -180,29 +180,92 @@ db._senior_managers.find().sort({ dob: 1 }).limit(1)
 */
 ```
 
-Now what about **joins** ?  Easy.
+Now what about **joins** ?  Easy. Join to the `users`.
 
-... documentation pending.
+```javascript
+// add users
+db.users.insert([
+  { id: 99, email: "ian@example.com" },
+  { id: 50, email: "aimee@example.com" },
+  { id: 20, email: "mary@example.com" },
+  { id: 3, email: "paul@example.com"}
+])
 
+db.employees.createView('employees_with_email', {}, {}, { target: db.users, from: "uid", to: "id"})
+
+db._employees_with_email.find().sort({name: 1})
+
+/* yields =>
+{
+  "_id": {
+    "from": ObjectId("54f9ebb1257b0c8dc73be97a"),
+    "to": ObjectId("54f9f1c4067bf2a2b99c53b1")
+  },
+  "name": "Aimee",
+  "manager": true,
+  "dob": ISODate("1945-03-20T04:00:00Z"),
+  "uid": 50,
+  "id": 50,
+  "email": "aimee@example.com"
+}
+{
+  "_id": {
+    "from": ObjectId("54f9ec10461b20c42cabc3d4"),
+    "to": ObjectId("54f9f1c4067bf2a2b99c53b0")
+  },
+  "name": "Ian",
+  "manager": true,
+  "dob": ISODate("1995-02-20T05:00:00Z"),
+  "uid": 99,
+  "id": 99,
+  "email": "ian@example.com"
+}
+{
+  "_id": {
+    "from": ObjectId("54f9ebb1257b0c8dc73be979"),
+    "to": ObjectId("54f9f1c4067bf2a2b99c53b2")
+  },
+  "name": "Mary",
+  "dob": ISODate("1985-06-12T04:00:00Z"),
+  "uid": 20,
+  "id": 20,
+  "email": "mary@example.com"
+}
+{
+  "_id": {
+    "from": ObjectId("54f9ebb1257b0c8dc73be978"),
+    "to": ObjectId("54f9f1c4067bf2a2b99c53b3")
+  },
+  "name": "Paul",
+  "manager": true,
+  "dob": ISODate("1983-08-10T04:00:00Z"),
+  "uid": 3,
+  "id": 3,
+  "email": "paul@example.com"
+}
+*/
+```
+
+It's all a cursor, so guess what? You can even join a view to another view!
 
 Want to see what's inside your **view**? Inspect it!
 
 ```javascript
-db._senior_managers.inspect()
+db._employees_with_email.inspect()
 /* yields =>
 {
-  "name": "senior_managers",
-  "target": "managers",
+  "name": "employees_with_email",
+  "target": "employees",
   "query": {
-    "dob": {
-      "$lt": "1990-01-01T05:00:00.000Z"
-    }
+
   },
   "projection": {
-    "_id": 0
+
   },
   "join": {
-
+    "target": "users",
+    "from": "uid",
+    "to": "id"
   }
 }
 */
@@ -328,59 +391,6 @@ join: {
     target: [collection|view],
     from: String, // foreign key in this collection or view
     to: String    // unique key in target collection or view
-}
-```
-
-Usage example
-
-```javascript
-// given employees with
-db.employees.insert([{
-    id: 1000,
-    userId: 1,
-    manager: true
-},
-{
-    id: 2000,
-    userId: 2
-}]);
-
-// and given users with
-db.users.insert([{
-    id: 1,
-    name: 'Mary'
-},
-{
-    id: 2,
-    name: 'Steve'
-}]);
-
-db.employees.createView("employeeWithName", {}, {}, { target: db.users, from: "userId", to: "id" })
-
-db._employeeWithName.find()
-
-// yields (with correct ObjectIDs)
-
-{
-  "_id": {
-    "from": ObjectId("54f8fe02dda3a15de727fed0"),
-    "to": ObjectId("54f8c9fd11728912a3d3d4ba")
-  },
-  "userId": 1,
-  "manager": true,
-  "employees_id": 1000,
-  "users_id": 1,
-  "name": "Mary"
-}
-{
-  "_id": {
-    "from": ObjectId("54f76a9627b88418f7ace405"),
-    "to": ObjectId("54f769f52a8ba2061cd100df")
-  },
-  "userId": 2,
-  "employees_id": 2000,
-  "users_id": 2,
-  "name": "Steve"
 }
 ```
 
