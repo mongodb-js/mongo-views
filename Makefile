@@ -14,3 +14,9 @@ install:
 		echo "appending a load script to ~/.mongorc.js to load symlinked index file" ; \
 		echo "var __CURDIR = '$(CURDIR)'; \nload(\"$(HOME)/.mongo-views.js\");" >> ~/.mongorc.js; \
 	fi
+
+check:
+	@test -n "$$(which npm)" || \
+	(echo "Need node package manager 'npm' to test mongo-views" && false)
+	npm install
+	npm test
