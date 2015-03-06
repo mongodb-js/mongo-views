@@ -124,6 +124,88 @@ describe('joins', function () {
                     });
                 });
             });
+
+            describe('when i create a view to join employees to users, excluding the userId field',
+                     function () {
+                var view;
+                beforeEach(function () {
+                    view = DBView.instantiate(source, 'name', {}, {userId: 0},
+                                              { target: dest, from: 'userId', to: '_id' });
+                });
+
+                describe('and i find all documents on the view', function () {
+                    var mergedQuery;
+                    beforeEach(function () {
+                        mergedQuery = { $and: [{ }, { }] };
+                    });
+                    describe('without any projections in that query', function() {
+                        var result;
+                        beforeEach(function () {
+                            result = view.find();
+                        });
+                        it('then i expect result to have two documents', function () {
+                            expect(result.toArray().length).to.equal(2);
+                        });
+                        it('then i expect the find query to be called with the projection',
+                           function () {
+                            expect(getCollectionStub.find).to.have.been.calledWith(mergedQuery,
+                                                                                   {userId: 0});
+                        });
+                    });
+                    describe('projecting out _id', function() {
+                        var result;
+                        beforeEach(function () {
+                            result = view.find({}, {_id: 0});
+                        });
+                        it('then i expect result to have two documents', function () {
+                            expect(result.toArray().length).to.equal(2);
+                        });
+                        it('then i expect the find query to project out userId and _id',
+                           function () {
+                            expect(getCollectionStub.find).to.have.been.calledWith(
+                                mergedQuery, {_id: 0, userId: 0});
+                        });
+                    });
+                    describe('projecting in name', function() {
+                        var result;
+                        beforeEach(function () {
+                            result = view.find({}, {name: 1});
+                        });
+                        it('then i expect result to have two documents', function () {
+                            expect(result.toArray().length).to.equal(2);
+                        });
+                        it('then i expect the find query to include only name',
+                           function () {
+                            expect(getCollectionStub.find).to.have.been.calledWith(
+                                mergedQuery, {name: 1});
+                        });
+                    });
+                });
+            });
+            describe('when i create a view to join employees to users, excluding _id and userId',
+                     function () {
+                var view;
+                beforeEach(function () {
+                    view = DBView.instantiate(source, 'name', {}, {_id: 0, userId: 0},
+                                              { target: dest, from: 'userId', to: '_id' });
+                });
+
+                describe('and i find all documents on the view', function () {
+                    var result, mergedQuery;
+                    beforeEach(function () {
+                        result = view.find();
+                        mergedQuery = { $and: [{ }, { }] };
+                    });
+                    it('then i expect result to have two documents', function () {
+                        expect(result.toArray().length).to.equal(2);
+                    });
+                    it('then i expect the find query to be called with the projection',
+                       function () {
+                        expect(getCollectionStub.find).to.have.been.calledWith(mergedQuery,
+                                                                               {_id: 0, userId: 0});
+                    });
+                });
+            });
         });
         describe('and i have a users collection with one matching user', function () {
             var dest;
