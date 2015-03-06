@@ -4,7 +4,13 @@
 
 Supports MongoDB 2.2 <= 3.0
 
-This is a MongoDB skunkworks project to enable queryable views within the shell. Views are like **virtual collections**, that can be queried as regular collections. They are comprised of queries themselves, and support **joins**.
+This is a MongoDB skunkworks project to enable queryable views within the shell. Views are like **virtual collections**, that can be queried as regular collections.
+
+They support:
+
+* **Criteria**
+* **Projections**
+* **Joins**
 
 Why might you want this? Well lets say you want to save a query for regular reuse. Say you have an employees collection:
 
@@ -28,7 +34,7 @@ db.employees.createView("managers", { manager: true })
 and query/sort/limit it as though it was a collection via
 
 ```javascript
-db._managers.find().sort({ name: 1 }).pretty()
+db._managers.find().sort({ name: -1 }).pretty()
 /* yields =>
 {
   "_id": ObjectId("54f9d8b3f088c1c44badce68"),
@@ -54,7 +60,7 @@ db.employees.insert( {name: "Ian", manager: true, dob: new Date(1995, 1, 20)} )
 then the same view query yields:
 
 ```javascript
-db._managers.find().sort({ name: 1 }).pretty();
+db._managers.find().sort({ name: -1 }).pretty();
 /* yields =>
 {
   "_id": ObjectId("54f9d8b3f088c1c44badce68"),
@@ -83,7 +89,7 @@ you can then create nested views just as easily
 db._managers.createView("senior_managers", { dob: {$lt: new Date(1990, 0 , 1) } })
 ```
 
-so querying the nested view works the same way
+so querying the nested view works the same way:
 
 ```javascript
 db._senior_managers.find()
@@ -106,7 +112,7 @@ db._senior_managers.find()
 it's just a cursor, so we can sort and limit as expected:
 
 ```javascript
-db._senior_managers.find().sort({ dob: 1 })
+db._senior_managers.find().sort({ dob: 1 }).limit(1)
 /* yields =>
 {
   "_id": ObjectId("54f9d8b3f088c1c44badce6a"),
@@ -114,12 +120,7 @@ db._senior_managers.find().sort({ dob: 1 })
   "manager": true,
   "dob": ISODate("1945-03-20T04:00:00Z")
 }
-{
-  "_id": ObjectId("54f9d8b3f088c1c44badce68"),
-  "name": "Paul",
-  "manager": true,
-  "dob": ISODate("1983-08-10T04:00:00Z")
-}*/
+*/
 ```
 
 Moreover, these views persist. Both when you switch DBs via `use [db]` or by restarting the shell.
