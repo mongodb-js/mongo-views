@@ -129,6 +129,10 @@ Join
 
 Currently supports a single join to another collection or view.
 
+Naming conflicts are solved by prefixing the fields with collection or view name and an underscore.
+
+`_id` field is a compound key of `from` and `to` `_ids`
+
 API:
 
 ```javascript
@@ -142,7 +146,58 @@ join: {
 Usage example
 
 ```javascript
-db.[collection].createView("name", {}, {}, { target: db.users, from: "userId", to: "id" })
+// given employees with
+db.employees.insert([{
+    _id: ObjectId("54f8fe02dda3a15de727fed0"),
+    id: 1000,
+    userId: 1,
+    manager: true
+},
+{
+    _id: ObjectId("54f76a9627b88418f7ace405"),
+    id: 2000,
+    userId: 2
+}]);
+
+// and given users with
+db.users.insert([{
+    _id: ObjectId("54f8c9fd11728912a3d3d4ba"),
+    id: 1,
+    name: 'Mary'
+},
+{
+    _id: ObjectId("54f769f52a8ba2061cd100df"),
+    id: 2,
+    name: 'Steve'
+}])/
+
+db.employees.createView("employeeWithName", {}, {}, { target: db.users, from: "userId", to: "id" })
+
+db._employeeWithName.find()
+
+// yields
+
+{{
+  "_id": {
+    "from": ObjectId("54f8fe02dda3a15de727fed0"),
+    "to": ObjectId("54f8c9fd11728912a3d3d4ba")
+  },
+  "userId": 1,
+  "manager": true,
+  "employees_id": 1000,
+  "users_id": 1,
+  "name": "Mary"
+}
+{
+  "_id": {
+    "from": ObjectId("54f76a9627b88418f7ace405"),
+    "to": ObjectId("54f769f52a8ba2061cd100df")
+  },
+  "userId": 2,
+  "employees_id": 2000,
+  "users_id": 2,
+  "name": "Steve"
+}
 ```
 
 Guidelines
