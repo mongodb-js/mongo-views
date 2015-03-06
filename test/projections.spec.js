@@ -24,9 +24,13 @@ describe('projections', function () {
         coll = stubCollection('coll', []);
 
         getCollectionStub = {
-            insert : sinon.stub(),
-            remove : sinon.stub(),
-            find : sinon.spy()
+            insert:  sinon.stub(),
+            remove:  sinon.stub(),
+            find:    sinon.spy(),
+            findOne: sinon.stub(),
+            count:   sinon.stub()
+ 
+
         };
 
         getCurrentDbStub = {
