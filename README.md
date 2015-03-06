@@ -122,7 +122,6 @@ db._managers.find({ }, { email: 0 });
 db.employees.find({ ... }, { id: 0, email: 0 }); // id removed as not in find() projection
 ```
 
-
 Join
 =====
 

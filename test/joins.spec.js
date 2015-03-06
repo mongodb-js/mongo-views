@@ -32,17 +32,17 @@ describe('joins', function () {
         db.restore();
     });
 
-    describe('on creation', function () {
-        function create(join) {
-            return DBView.instantiate(baseCollectionStub, 'name', {}, {}, join);
-        }
+    // describe('on creation', function () {
+    //     function create(join) {
+    //         return DBView.instantiate(baseCollectionStub, 'name', {}, {}, join);
+    //     }
 
-        var view;
-        beforeEach(function () {
-            view = create([{ foreignKey: 'fid', targets: [ { foo: 'id' } ] }]);
-        });
+    //     var view;
+    //     beforeEach(function () {
+    //         view = create([{ foreignKey: 'fid', targets: [ { foo: 'id' } ] }]);
+    //     });
 
 
-    });
+    // });
 
 });
