@@ -40,7 +40,7 @@ Basic Usage
 
 __Create__
 ```javascript
-db.[collection].createView(view:String, criteria:Object, projection:Object, join:Array)
+db.[collection].createView(view:String, criteria:Object, projection:Object, join:Object)
 
 //or
 
@@ -55,6 +55,11 @@ show views
 __Query__
 ```javascript
 db._[view].find(criteria:Object):DBQuery
+```
+
+__Inspect__
+```javascript
+db._[view].inspect():Object
 ```
 
 __Drop__
@@ -122,50 +127,90 @@ db._managers.find({ }, { email: 0 });
 db.employees.find({ ... }, { id: 0, email: 0 }); // id removed as not in find() projection
 ```
 
-
 Join
 =====
 
-WIP.
+> Under construction
+
+Currently supports a single join to another collection or view.
+
+Naming conflicts are solved by prefixing the fields with collection or view name and an underscore.
+
+`_id` field is a compound key of `from` and `to` `_ids`
+
+API:
 
 ```javascript
-db.[collection].createView("name", {}, {}, [{ foreignKey: "userId", targets: [ "users": "id" ] }])
+join: {
+    target: [collection|view],
+    from: String, // foreign key in this collection or view
+    to: String    // unique key in target collection or view
+}
 ```
 
-Proposed change
+Usage example
+
 ```javascript
-db.[collection].createView("name", { query: {}, projection: {}, { join: [zz{ foreignKey: "userId", targets: [ target: db.users, key: "id" ] }] }})
-```
+// given employees with
+db.employees.insert([{
+    id: 1000,
+    userId: 1,
+    manager: true
+},
+{
+    id: 2000,
+    userId: 2
+}]);
 
+// and given users with
+db.users.insert([{
+    id: 1,
+    name: 'Mary'
+},
+{
+    id: 2,
+    name: 'Steve'
+}]);
+
+db.employees.createView("employeeWithName", {}, {}, { target: db.users, from: "userId", to: "id" })
+
+db._employeeWithName.find()
+
+// yields (with correct ObjectIDs)
+
+{
+  "_id": {
+    "from": ObjectId("54f8fe02dda3a15de727fed0"),
+    "to": ObjectId("54f8c9fd11728912a3d3d4ba")
+  },
+  "userId": 1,
+  "manager": true,
+  "employees_id": 1000,
+  "users_id": 1,
+  "name": "Mary"
+}
+{
+  "_id": {
+    "from": ObjectId("54f76a9627b88418f7ace405"),
+    "to": ObjectId("54f769f52a8ba2061cd100df")
+  },
+  "userId": 2,
+  "employees_id": 2000,
+  "users_id": 2,
+  "name": "Steve"
+}
+```
 
 Guidelines
 ========
 
-* View names are unique
+* Views are scoped to the DB level
+
+* View names must be unique, and cannot match any given collection name in that DB
 
 * Views based on dropped collections or views will be removed automatically
 
-
-Supports
-=======
-
-Saved queries (selects)
--------------
-
-* Querying of View
-
-* Nested views (create a view from view)
-
-* Persistence across Sessions
-
-
-Todo
-----
-
-1. Persistence
-    * support for switching dbs
-
-1. Inner Joins
+* Joins are performed in-memory, and may take a long time for large collections
 
 
 Run Tests
