@@ -125,7 +125,9 @@ db.employees.find({ ... }, { id: 0, email: 0 }); // id removed as not in find() 
 Join
 =====
 
-WIP.
+> Under construction
+
+Currently supports a single join to another collection or view.
 
 API:
 
@@ -137,6 +139,8 @@ join: {
 }
 ```
 
+Usage example
+
 ```javascript
 db.[collection].createView("name", {}, {}, { target: db.users, from: "userId", to: "id" })
 ```
@@ -144,31 +148,13 @@ db.[collection].createView("name", {}, {}, { target: db.users, from: "userId", t
 Guidelines
 ========
 
-* View names are unique
+* Views are scoped to the DB level
+
+* View names must be unique, and cannot match any given collection name in that DB
 
 * Views based on dropped collections or views will be removed automatically
 
-
-Supports
-=======
-
-Saved queries (selects)
--------------
-
-* Querying of View
-
-* Nested views (create a view from view)
-
-* Persistence across Sessions
-
-
-Todo
-----
-
-1. Persistence
-    * support for switching dbs
-
-1. Inner Joins
+* Joins are performed in-memory, and may take a long time for large collections
 
 
 Run Tests
