@@ -126,6 +126,16 @@ db._senior_managers.find()
 */
 ```
 
+We can see all our views so far via
+
+```javascript
+show views
+/* yields =>
+managers
+senior_managers
+*/
+```
+
 Maybe we don't want senior managers to show the `_id` field, then we use a **projection**
 
 ```javascript
@@ -288,11 +298,15 @@ Basic Usage
 
 __Create__
 ```javascript
-db.[collection].createView(view:String, criteria:Object, projection:Object, join:Object)
-
-//or
-
-db._[view].createView(view:String, query:Object)
+db.[collection|view].createView(
+  name:String,
+  criteria:Object,
+  projection:Object,
+  join: {
+    target: [collection|view]
+    from: String,
+    to: String
+  })
 ```
 
 __See all views in DB__
@@ -307,7 +321,7 @@ db._[view].inspect()
 
 __Query__
 ```javascript
-db._[view].find(criteria:Object):DBQuery
+db._[view].find(criteria:Object, projection:Object):DBQuery
 ```
 
 __Drop__
