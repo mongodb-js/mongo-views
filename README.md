@@ -57,6 +57,11 @@ __Query__
 db._[view].find(criteria:Object):DBQuery
 ```
 
+__Inspect__
+```javascript
+db._[view].inspect():Object
+```
+
 __Drop__
 ```javascript
 db._[view].drop()
