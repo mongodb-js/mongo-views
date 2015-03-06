@@ -40,7 +40,7 @@ Basic Usage
 
 __Create__
 ```javascript
-db.[collection].createView(view:String, criteria:Object, projection:Object, join:Array)
+db.[collection].createView(view:String, criteria:Object, projection:Object, join:Object)
 
 //or
 
@@ -128,15 +128,19 @@ Join
 
 WIP.
 
+API:
+
 ```javascript
-db.[collection].createView("name", {}, {}, [{ foreignKey: "userId", targets: [ "users": "id" ] }])
+join: {
+    target: [collection|view],
+    from: String, // foreign key in this collection or view
+    to: String    // unique key in target collection or view
+}
 ```
 
-Proposed change
 ```javascript
-db.[collection].createView("name", { query: {}, projection: {}, { join: [zz{ foreignKey: "userId", targets: [ target: db.users, key: "id" ] }] }})
+db.[collection].createView("name", {}, {}, { target: db.users, from: "userId", to: "id" })
 ```
-
 
 Guidelines
 ========
