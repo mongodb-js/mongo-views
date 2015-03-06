@@ -22,11 +22,11 @@ describe('deserializer', function () {
         describe('when i execute with a deep object with dates', function () {
             beforeEach(function () {
                 result = deserializer(
-                    '[{"first":1,"other":[{"x":2}],"dob":{"$gt":"2000-02-02T05:00:00.000Z","$exists":true,"$lt":"2011-04-03T04:00:00.000Z"}}, {}]'
+                    '[{"first":1,"other":[{"x":2}],"dob":{"$gt":"2000-02-02T00:00:00.000Z","$exists":true,"$lt":"2011-04-03T00:00:00.000Z"}}, {}]'
                 );
             });
             it('then i get a good parse', function () {
-                expect(result).to.eql([{ first: 1, other: [{x: 2}], dob: {$gt: new Date(2000, 1, 2), $exists: true, $lt: new Date(2011, 3,3)}}, {}]);
+                expect(result).to.eql([{ first: 1, other: [{x: 2}], dob: {$gt: new Date('2000-02-02T00:00:00.000Z'), $exists: true, $lt: new Date('2011-04-03T00:00:00.000Z')}}, {}]);
             });
         });
     });
