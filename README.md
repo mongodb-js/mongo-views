@@ -11,21 +11,22 @@ They support:
 * **Criteria**
 * **Projections**
 * **Joins**
-
-Why might you want this? Well lets say you want to save a query for regular reuse. Say you have an employees collection:
+* **Nesting**
+* 
+Why might you want this? Well lets say you want to save a query for regular reuse. Say you have an `employees` collection:
 
 ```javascript
 db.employees.insert(
     [
         {name: "John", dob: new Date(1980, 1, 2)}, 
-        {name: "Paul", manager: true, dob: new Date(1983, 7, 10)},
-        {name: "Mary", dob: new Date(1985, 5, 12)},
-        {name: "Aimee", manager: true, dob: new Date(1945, 2, 20)}
+        {name: "Paul", manager: true, dob: new Date(1983, 7, 10), uid: 3},
+        {name: "Mary", dob: new Date(1985, 5, 12), uid: 20},
+        {name: "Aimee", manager: true, dob: new Date(1945, 2, 20), uid: 50}
     ]
 )
 ```
 
-and we want all managers from an `employee` collection. Then you could create a view via:
+and we want all managers from an `employee` collection. Then you could create a **view** via:
 
 ```javascript
 db.employees.createView("managers", { manager: true })
@@ -37,24 +38,26 @@ and query/sort/limit it as though it was a collection via
 db._managers.find().sort({ name: -1 }).pretty()
 /* yields =>
 {
-  "_id": ObjectId("54f9d8b3f088c1c44badce68"),
+  "_id": ObjectId("54f9e58e1d8a2ac246213516"),
   "name": "Paul",
   "manager": true,
-  "dob": ISODate("1983-08-10T04:00:00Z")
+  "dob": ISODate("1983-08-10T04:00:00Z"),
+  "uid": 3
 }
 {
-  "_id": ObjectId("54f9d8b3f088c1c44badce6a"),
+  "_id": ObjectId("54f9e58e1d8a2ac246213518"),
   "name": "Aimee",
   "manager": true,
-  "dob": ISODate("1945-03-20T04:00:00Z")
+  "dob": ISODate("1945-03-20T04:00:00Z"),
+  "uid": 50
 }
 */
 ```
 
-it's virtual, so if you add to the base collection
+it's virtual, so if you add to the underlying collection(s)
 
 ```javascript
-db.employees.insert( {name: "Ian", manager: true, dob: new Date(1995, 1, 20)} )
+db.employees.insert( {name: "Ian", manager: true, dob: new Date(1995, 1, 20), uid: 99 })
 ```
 
 then the same view query yields:
@@ -63,35 +66,49 @@ then the same view query yields:
 db._managers.find().sort({ name: -1 }).pretty();
 /* yields =>
 {
-  "_id": ObjectId("54f9d8b3f088c1c44badce68"),
+  "_id": ObjectId("54f9e58e1d8a2ac246213516"),
   "name": "Paul",
   "manager": true,
-  "dob": ISODate("1983-08-10T04:00:00Z")
+  "dob": ISODate("1983-08-10T04:00:00Z"),
+  "uid": 3
 }
 {
-  "_id": ObjectId("54f9d9a1f088c1c44badce6c"),
+  "_id": ObjectId("54f9e5b41d8a2ac24621351a"),
   "name": "Ian",
   "manager": true,
-  "dob": ISODate("1995-02-20T05:00:00Z")
+  "dob": ISODate("1995-02-20T05:00:00Z"),
+  "uid": 99
 }
 {
-  "_id": ObjectId("54f9d8b3f088c1c44badce6a"),
+  "_id": ObjectId("54f9e58e1d8a2ac246213518"),
   "name": "Aimee",
   "manager": true,
-  "dob": ISODate("1945-03-20T04:00:00Z")
+  "dob": ISODate("1945-03-20T04:00:00Z"),
+  "uid": 50
 }
 */
 ```
 
-you can then create nested views just as easily
+you can of course add **criteria** to the `find()`
+
+```javascript
+db._managers.find({ name: /Paul/ }).sort({ name: -1 }).pretty();
+/* yields =>
+{
+  "_id": ObjectId("54f9e58e1d8a2ac246213516"),
+  "name": "Paul",
+  "manager": true,
+  "dob": ISODate("1983-08-10T04:00:00Z"),
+  "uid": 3
+}
+*/
+```
+
+you can then create **nested views** just as easily
 
 ```javascript
 db._managers.createView("senior_managers", { dob: {$lt: new Date(1990, 0 , 1) } })
-```
 
-so querying the nested view works the same way:
-
-```javascript
 db._senior_managers.find()
 /* yields =>
 {
@@ -109,13 +126,52 @@ db._senior_managers.find()
 */
 ```
 
+Maybe we don't want senior managers to show the `_id` field, then we use a **projection**
+
+```javascript
+db._senior_managers.drop();
+
+db._managers.createView("senior_managers", { dob: {$lt: new Date(1990, 0 , 1)} }, { _id: 0 })
+
+db._senior_managers.find()
+/* yields =>
+{
+  "name": "Paul",
+  "manager": true,
+  "dob": ISODate("1983-08-10T04:00:00Z"),
+  "uid": 3
+}
+{
+  "name": "Aimee",
+  "manager": true,
+  "dob": ISODate("1945-03-20T04:00:00Z"),
+  "uid": 50
+}
+*/
+```
+
+we can even combine **projections** as in
+
+```javascript
+db._senior_managers.find({}, {uid: 0, manager: 0})
+/* yields =>
+{
+  "name": "Paul",
+  "dob": ISODate("1983-08-10T04:00:00Z")
+}
+{
+  "name": "Aimee",
+  "dob": ISODate("1945-03-20T04:00:00Z")
+}
+*/
+```
+
 it's just a cursor, so we can sort and limit as expected:
 
 ```javascript
 db._senior_managers.find().sort({ dob: 1 }).limit(1)
 /* yields =>
 {
-  "_id": ObjectId("54f9d8b3f088c1c44badce6a"),
   "name": "Aimee",
   "manager": true,
   "dob": ISODate("1945-03-20T04:00:00Z")
