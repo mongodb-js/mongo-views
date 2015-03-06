@@ -12,7 +12,7 @@ They support:
 * **Projections**
 * **Joins**
 * **Nesting**
-* 
+
 Why might you want this? Well lets say you want to save a query for regular reuse. Say you have an `employees` collection:
 
 ```javascript
@@ -129,6 +129,7 @@ db._senior_managers.find()
 Maybe we don't want senior managers to show the `_id` field, then we use a **projection**
 
 ```javascript
+// remove view first
 db._senior_managers.drop();
 
 db._managers.createView("senior_managers", { dob: {$lt: new Date(1990, 0 , 1)} }, { _id: 0 })
@@ -175,6 +176,34 @@ db._senior_managers.find().sort({ dob: 1 }).limit(1)
   "name": "Aimee",
   "manager": true,
   "dob": ISODate("1945-03-20T04:00:00Z")
+}
+*/
+```
+
+Now what about **joins** ?  Easy.
+
+... documentation pending.
+
+
+Want to see what's inside your **view**? Inspect it!
+
+```javascript
+db._senior_managers.inspect()
+/* yields =>
+{
+  "name": "senior_managers",
+  "target": "managers",
+  "query": {
+    "dob": {
+      "$lt": "1990-01-01T05:00:00.000Z"
+    }
+  },
+  "projection": {
+    "_id": 0
+  },
+  "join": {
+
+  }
 }
 */
 ```
