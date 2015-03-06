@@ -52,6 +52,11 @@ __See all views in DB__
 show views
 ```
 
+__Inspect a view__
+```javascript
+db._[view].inspect()
+```
+
 __Query__
 ```javascript
 db._[view].find(criteria:Object):DBQuery
@@ -124,8 +129,6 @@ db.employees.find({ ... }, { id: 0, email: 0 }); // id removed as not in find() 
 
 Join
 =====
-
-> Under construction
 
 Currently supports a single join to another collection or view.
 
