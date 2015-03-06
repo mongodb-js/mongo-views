@@ -283,4 +283,3 @@ describe('joins', function () {
         });
     });
 });
-
