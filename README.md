@@ -148,36 +148,32 @@ Usage example
 ```javascript
 // given employees with
 db.employees.insert([{
-    _id: ObjectId("54f8fe02dda3a15de727fed0"),
     id: 1000,
     userId: 1,
     manager: true
 },
 {
-    _id: ObjectId("54f76a9627b88418f7ace405"),
     id: 2000,
     userId: 2
 }]);
 
 // and given users with
 db.users.insert([{
-    _id: ObjectId("54f8c9fd11728912a3d3d4ba"),
     id: 1,
     name: 'Mary'
 },
 {
-    _id: ObjectId("54f769f52a8ba2061cd100df"),
     id: 2,
     name: 'Steve'
-}])/
+}]);
 
 db.employees.createView("employeeWithName", {}, {}, { target: db.users, from: "userId", to: "id" })
 
 db._employeeWithName.find()
 
-// yields
+// yields (with correct ObjectIDs)
 
-{{
+{
   "_id": {
     "from": ObjectId("54f8fe02dda3a15de727fed0"),
     "to": ObjectId("54f8c9fd11728912a3d3d4ba")
