@@ -157,7 +157,130 @@ describe('joins', function () {
                 });
             });
         });
-    });
+        describe('and i have a users collection with no matching users', function () {
+            var dest;
 
+            beforeEach(function () {
+                dest = stubCollection('users', [{
+                    _id: 3,
+                    name: 'NotMary'
+                },
+                {
+                    _id: 4,
+                    name: 'NotSteve'
+                }]);
+            });
+            describe('when i create a view to join employees to users', function () {
+                var view;
+                beforeEach(function () {
+                    view = DBView.instantiate(source, 'name', {}, {},
+                                              { target: dest, from: 'userId', to: '_id' });
+                });
+
+                describe('and i find all documents on the view', function () {
+                    var result;
+                    beforeEach(function () {
+                        result = view.find();
+                    });
+                    it('then i expect result to have no documents', function () {
+                        expect(result.toArray().length).to.equal(0);
+                        expect(result.toArray()).to.eql([]);
+                    });
+                });
+            });
+        });
+        describe('and i have a users collection with no users', function () {
+            var dest;
+
+            beforeEach(function () {
+                dest = stubCollection('users', []);
+            });
+            describe('when i create a view to join employees to users', function () {
+                var view;
+                beforeEach(function () {
+                    view = DBView.instantiate(source, 'name', {}, {},
+                                              { target: dest, from: 'userId', to: '_id' });
+                });
+
+                describe('and i find all documents on the view', function () {
+                    var result;
+                    beforeEach(function () {
+                        result = view.find();
+                    });
+                    it('then i expect result to have no documents', function () {
+                        expect(result.toArray().length).to.equal(0);
+                        expect(result.toArray()).to.eql([]);
+                    });
+                });
+            });
+        });
+    });
+    describe('given i have an employees collection with no employees', function () {
+        var source;
+
+        beforeEach(function () {
+            source = stubCollection('employees',[]);
+        });
+
+        describe('and i have a users collection with two users', function () {
+            var dest;
+
+            beforeEach(function () {
+                dest = stubCollection('users', [{
+                    _id: 1,
+                    name: 'Mary'
+                },
+                {
+                    _id: 2,
+                    name: 'Steve'
+                }]);
+            });
+
+            describe('when i create a view to join employees to users', function () {
+                var view;
+                beforeEach(function () {
+                    view = DBView.instantiate(source, 'name', {}, {},
+                                              { target: dest, from: 'userId', to: '_id' });
+                });
+
+                describe('and i find all documents on the view', function () {
+                    var result;
+                    beforeEach(function () {
+                        result = view.find();
+                    });
+                    it('then i expect result to have no documents', function () {
+                        expect(result.toArray().length).to.equal(0);
+                        expect(result.toArray()).to.eql([]);
+                    });
+                });
+            });
+        });
+        describe('and i have a users collection with no users', function () {
+            var dest;
+
+            beforeEach(function () {
+                dest = stubCollection('users', []);
+            });
+
+            describe('when i create a view to join employees to users', function () {
+                var view;
+                beforeEach(function () {
+                    view = DBView.instantiate(source, 'name', {}, {},
+                                              { target: dest, from: 'userId', to: '_id' });
+                });
+
+                describe('and i find all documents on the view', function () {
+                    var result;
+                    beforeEach(function () {
+                        result = view.find();
+                    });
+                    it('then i expect result to have no documents', function () {
+                        expect(result.toArray().length).to.equal(0);
+                        expect(result.toArray()).to.eql([]);
+                    });
+                });
+            });
+        });
+    });
 });
 
