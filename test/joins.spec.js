@@ -50,7 +50,9 @@ describe('joins', function () {
                     return docs;
                 }
             }),
-            getName: function () { return name; }
+            getName: function () { return name; },
+	    count : sinon.stub(),
+	    findOne : sinon.stub()
         };
     }
 
