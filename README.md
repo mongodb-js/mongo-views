@@ -4,29 +4,129 @@
 
 Supports MongoDB 2.2 <= 3.0
 
-This is a MongoDB skunkworks project to enable queryable views within the shell. Views are like **virtual collections**, that can be queried as regular collections. They are comprised of queries themselves, and support db joins.
+This is a MongoDB skunkworks project to enable queryable views within the shell. Views are like **virtual collections**, that can be queried as regular collections.
 
-Why might you want this? Well lets say you want to save a query for regular reuse. Say you want all managers from an `employee` collection. Then you could create a view via:
+They support:
+
+* **Criteria**
+* **Projections**
+* **Joins**
+
+Why might you want this? Well lets say you want to save a query for regular reuse. Say you have an employees collection:
 
 ```javascript
-db.employees.createView("managers", { manager: true });
+db.employees.insert(
+    [
+        {name: "John", dob: new Date(1980, 1, 2)}, 
+        {name: "Paul", manager: true, dob: new Date(1983, 7, 10)},
+        {name: "Mary", dob: new Date(1985, 5, 12)},
+        {name: "Aimee", manager: true, dob: new Date(1945, 2, 20)}
+    ]
+)
+```
+
+and we want all managers from an `employee` collection. Then you could create a view via:
+
+```javascript
+db.employees.createView("managers", { manager: true })
 ```
 
 and query/sort/limit it as though it was a collection via
 
-```
-db._managers.find({ name: "Jane" }).sort({ name: 1 }).pretty();
+```javascript
+db._managers.find().sort({ name: -1 }).pretty()
+/* yields =>
+{
+  "_id": ObjectId("54f9d8b3f088c1c44badce68"),
+  "name": "Paul",
+  "manager": true,
+  "dob": ISODate("1983-08-10T04:00:00Z")
+}
+{
+  "_id": ObjectId("54f9d8b3f088c1c44badce6a"),
+  "name": "Aimee",
+  "manager": true,
+  "dob": ISODate("1945-03-20T04:00:00Z")
+}
+*/
 ```
 
-you can then create nested views via
+it's virtual, so if you add to the base collection
 
 ```javascript
-db._managers.createView("female_managers", { gender: "F" });
+db.employees.insert( {name: "Ian", manager: true, dob: new Date(1995, 1, 20)} )
 ```
 
-Whenever you open the shell and go into that database, your views will be there for that database. They are virtual, and only save the state of the query used to create them. This means that each time a query is performed on a view, the latest collection data is fetched.
+then the same view query yields:
 
-> underscore is required in order to allow immediate View lookup. Workaround involves modifying shell code to be view aware.
+```javascript
+db._managers.find().sort({ name: -1 }).pretty();
+/* yields =>
+{
+  "_id": ObjectId("54f9d8b3f088c1c44badce68"),
+  "name": "Paul",
+  "manager": true,
+  "dob": ISODate("1983-08-10T04:00:00Z")
+}
+{
+  "_id": ObjectId("54f9d9a1f088c1c44badce6c"),
+  "name": "Ian",
+  "manager": true,
+  "dob": ISODate("1995-02-20T05:00:00Z")
+}
+{
+  "_id": ObjectId("54f9d8b3f088c1c44badce6a"),
+  "name": "Aimee",
+  "manager": true,
+  "dob": ISODate("1945-03-20T04:00:00Z")
+}
+*/
+```
+
+you can then create nested views just as easily
+
+```javascript
+db._managers.createView("senior_managers", { dob: {$lt: new Date(1990, 0 , 1) } })
+```
+
+so querying the nested view works the same way:
+
+```javascript
+db._senior_managers.find()
+/* yields =>
+{
+  "_id": ObjectId("54f9d8b3f088c1c44badce68"),
+  "name": "Paul",
+  "manager": true,
+  "dob": ISODate("1983-08-10T04:00:00Z")
+}
+{
+  "_id": ObjectId("54f9d8b3f088c1c44badce6a"),
+  "name": "Aimee",
+  "manager": true,
+  "dob": ISODate("1945-03-20T04:00:00Z")
+}
+*/
+```
+
+it's just a cursor, so we can sort and limit as expected:
+
+```javascript
+db._senior_managers.find().sort({ dob: 1 }).limit(1)
+/* yields =>
+{
+  "_id": ObjectId("54f9d8b3f088c1c44badce6a"),
+  "name": "Aimee",
+  "manager": true,
+  "dob": ISODate("1945-03-20T04:00:00Z")
+}
+*/
+```
+
+Moreover, these views persist. Both when you switch DBs via `use [db]` or by restarting the shell.
+
+> **Views** are virtual, and only save the state of the query used to create them. This means that each time a query is performed on a view, the latest collection data is fetched.
+
 
 Installation
 ====
