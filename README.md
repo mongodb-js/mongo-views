@@ -291,7 +291,7 @@ Installation
 
 * In POSIX environments, run `make`
 
-* In WinX environments, please add `mongorc.js` to your MongoDB installation folder (if it doesn't exist) and copy the contents of `index.js` into it, amending setting the `__CURDIR` global to the full path of this mongo-views folder.
+* In WinX environments, please add `mongorc.js` to your MongoDB installation folder (if it doesn't exist), run `npm run build` to generate the browserify bundle, and finally copy the contents of `dist/bundle.js` into ``mongorc.js`.
 
 Basic Usage
 =======

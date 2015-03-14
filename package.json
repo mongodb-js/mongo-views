@@ -3,8 +3,10 @@
   "version": "0.1.0",
   "description": "Support Views in MongoDB shell",
   "main": "lib/views.js",
+  "mongo": "lib/init.js",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha"
+    "test": "./node_modules/mocha/bin/mocha",
+    "build": "mkdir -p dist && ./node_modules/browserify/bin/cmd.js ./lib/init.js > ./dist/bundled.js"
   },
   "repository": {
     "type": "git",
@@ -21,6 +23,7 @@
   },
   "homepage": "https://github.com/justinjmoses/mongo-views",
   "devDependencies": {
+    "browserify": "^9.0.3",
     "chai": "^2.1.1",
     "mocha": "^2.1.0",
     "sinon": "^1.13.0",
