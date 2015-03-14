@@ -25,5 +25,5 @@
 
     "supernew": true,
 
-    "predef": [ "load", "__modules", "describe", "it", "beforeEach", "afterEach", "before", "after", "xdescribe", "xit" ]
+    "predef": [ "print", "printjson", "DBCollection", "DB", "shellHelper", "describe", "it", "beforeEach", "afterEach", "before", "after", "xdescribe", "xit" ]
 }

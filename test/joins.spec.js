@@ -10,7 +10,8 @@ var DBView = require('../lib/views');
 var config = require('../lib/config');
 
 // polyfill Object.extend... (taken from Mongo source (types.js))
-// TODO, remove
+/* global tojson: false */
+/* jshint evil: true */
 Object.extend = function(dst, src, deep){
     for (var k in src){
         var v = src[k];

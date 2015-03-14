@@ -10,8 +10,7 @@ var DBView = require('../lib/views');
 var config = require('../lib/config');
 
 describe('projections', function () {
-    function stubCollection(name, docs) {
-        var i = 0;
+    function stubCollection(name) {
         return {
             find: sinon.spy(),
             getName: function () { return name; }
@@ -21,7 +20,7 @@ describe('projections', function () {
     var db, coll, getCollectionStub, getCurrentDbStub, mergedQuery;
 
     beforeEach(function () {
-        coll = stubCollection('coll', []);
+        coll = stubCollection('coll');
 
         getCollectionStub = {
             insert:  sinon.stub(),
@@ -29,7 +28,7 @@ describe('projections', function () {
             find:    sinon.spy(),
             findOne: sinon.stub(),
             count:   sinon.stub()
- 
+
 
         };
 
