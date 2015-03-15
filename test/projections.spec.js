@@ -61,7 +61,18 @@ describe('projections', function () {
             });
         });
 
-        describe(' and a find on that view with inclusion projection for one field',
+        describe('and a find on that view excluding both fields', function() {
+            var result;
+            beforeEach(function () {
+                result = view.find({}, { x : 0, y : 0 });
+            });
+            it('then expect this to result in a projection with only the non-existant $ field',
+            function () {
+                expect(coll.find).to.have.been.calledWith(mergedQuery, { $ : 1 });
+            });
+        });
+
+        describe('and a find on that view with inclusion projection for one field',
         function() {
             var result;
             beforeEach(function () {
@@ -73,7 +84,19 @@ describe('projections', function () {
             });
         });
 
-	describe(' and a find on that view with inclusion for that one and some other field',
+        describe('and a find on that view with inclusion projection for two other fields',
+        function() {
+            var result;
+            beforeEach(function () {
+                result = view.find({}, { a : 1, b : 1 });
+            });
+            it('then expect this to result in a projection with only the non-existant $ field',
+            function () {
+                expect(coll.find).to.have.been.calledWith(mergedQuery, { $ : 1 });
+            });
+        });
+
+	describe('and a find on that view with inclusion for that one and some other field',
         function() {
             var result;
             beforeEach(function () {
@@ -92,7 +115,19 @@ describe('projections', function () {
             mergedQuery = { $and: [{ }, { }] };
         });
 
-        describe(' and a find on that view with an exclusion projection for a third field',
+        describe('and a find on that view with an inclusion projection for one of those fields',
+        function() {
+            var result;
+            beforeEach(function () {
+                result = view.find({}, { one : 1 });
+            });
+            it('then expect this to result in a projection with only the non-existant $ field',
+            function () {
+                expect(coll.find).to.have.been.calledWith(mergedQuery, { $ : 1 });
+            });
+        });
+
+        describe('and a find on that view with an exclusion projection for a third field',
         function() {
             var result;
             beforeEach(function () {
@@ -102,6 +137,19 @@ describe('projections', function () {
             function () {
                 expect(coll.find).to.have.been.calledWith(mergedQuery,
                                                           { one : 0, other : 0 , third : 0 });
+            });
+        });
+
+        describe('and a find on that view with an inclusion projection for a third field',
+        function() {
+            var result;
+            beforeEach(function () {
+                result = view.find({}, { third : 1 });
+            });
+            it('then expect this to result in a projection with only that third field included',
+            function () {
+                expect(coll.find).to.have.been.calledWith(mergedQuery,
+                                                          { third : 1 });
             });
         });
     });
