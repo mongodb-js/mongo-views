@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/justinjmoses/mongo-views.git"
+    "url": "https://github.com/mongodb-js/mongo-views.git"
   },
   "contributors": [
     "justin j. moses",
@@ -19,9 +19,9 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/justinjmoses/mongo-views/issues"
+    "url": "https://github.com/mongodb-js/mongo-views/issues"
   },
-  "homepage": "https://github.com/justinjmoses/mongo-views",
+  "homepage": "https://github.com/mongodb-js/mongo-views",
   "devDependencies": {
     "browserify": "^9.0.3",
     "chai": "^2.1.1",
