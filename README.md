@@ -1,6 +1,6 @@
 # mongo-views
 
-[![Build Status](https://travis-ci.org/justinjmoses/mongo-views.svg?branch=master)](https://travis-ci.org/justinjmoses/mongo-views)
+[![Build Status](https://travis-ci.org/mongodb-js/mongo-views.svg?branch=master)](https://travis-ci.org/justinjmoses/mongo-views)
 
 Supports MongoDB 2.2 <= 3.0
 
