@@ -6,7 +6,8 @@
   "mongo": "lib/init.js",
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha",
-    "build": "mkdir -p dist && ./node_modules/browserify/bin/cmd.js ./lib/init.js > ./dist/bundled.js"
+    "build": "mkdir -p dist && ./node_modules/browserify/bin/cmd.js ./lib/init.js > ./dist/bundled.js",
+    "check": "./node_modules/jshint/bin/jshint lib test"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
   "devDependencies": {
     "browserify": "^9.0.3",
     "chai": "^2.1.1",
+    "jshint": "^2.6.3",
     "mocha": "^2.1.0",
     "sinon": "^1.13.0",
     "sinon-chai": "^2.7.0"
