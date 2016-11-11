@@ -24,10 +24,10 @@
   },
   "homepage": "https://github.com/mongodb-js/mongo-views",
   "devDependencies": {
-    "browserify": "^9.0.3",
-    "chai": "^2.1.1",
+    "browserify": "^13.1.1",
+    "chai": "^3.5.0",
     "jshint": "^2.6.3",
-    "mocha": "^2.1.0",
+    "mocha": "^3.1.2",
     "sinon": "^1.13.0",
     "sinon-chai": "^2.7.0"
   }
